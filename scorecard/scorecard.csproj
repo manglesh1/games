@@ -93,8 +93,9 @@
     <Reference Include="PCSC.Iso7816, Version=7.0.0.0, Culture=neutral, PublicKeyToken=13b76e54a2ee80a7, processorArchitecture=MSIL">
       <HintPath>..\packages\PCSC.Iso7816.7.0.0\lib\netstandard2.0\PCSC.Iso7816.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp, Version=111.4.1.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.111.4.1\lib\net471\RestSharp.dll</HintPath>
+    <Reference Include="RestSharp, Version=112.0.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75">
+      <HintPath>..\packages\RestSharp.112.0.0\lib\net471\RestSharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="SkiaSharp, Version=2.88.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\ConsoleApp2\packages\SkiaSharp.2.88.8\lib\net462\SkiaSharp.dll</HintPath>
