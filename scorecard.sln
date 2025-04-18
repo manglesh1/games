@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialMonitorWPF", "SerialM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoorLock", "DoorLock\DoorLock.csproj", "{CC4F352C-E800-4C27-9F1E-9AFC36B1F9DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComPortScannerApp", "ComPortScannerApp\ComPortScannerApp.csproj", "{F06869D9-5F9D-463A-8710-4D1AC512DAE6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,10 @@ Global
 		{CC4F352C-E800-4C27-9F1E-9AFC36B1F9DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC4F352C-E800-4C27-9F1E-9AFC36B1F9DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC4F352C-E800-4C27-9F1E-9AFC36B1F9DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F06869D9-5F9D-463A-8710-4D1AC512DAE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F06869D9-5F9D-463A-8710-4D1AC512DAE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F06869D9-5F9D-463A-8710-4D1AC512DAE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F06869D9-5F9D-463A-8710-4D1AC512DAE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
