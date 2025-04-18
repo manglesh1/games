@@ -23,9 +23,6 @@ packages/
 .idea/
 *.sln.iml
 
-# === appsettings (local only) ===
-appsettings.json
-
 # === Crash dumps / local junk ===
 *.bak
 *.tmp

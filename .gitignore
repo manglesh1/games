@@ -49,7 +49,7 @@ artifacts/
 *.temp
 
 # Ignore configuration files
-appsettings*.json
+# appsettings*.json
 
 # Ignore hidden folders and files
 .*.swp
