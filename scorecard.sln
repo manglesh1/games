@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoorLock", "DoorLock\DoorLo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComPortScannerApp", "ComPortScannerApp\ComPortScannerApp.csproj", "{F06869D9-5F9D-463A-8710-4D1AC512DAE6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScorecardUpdaterWPF", "ScorecardUpdaterWPF\ScorecardUpdaterWPF\ScorecardUpdaterWPF.csproj", "{DCD776A1-721B-4B48-881C-D11DE7877EC4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,10 @@ Global
 		{F06869D9-5F9D-463A-8710-4D1AC512DAE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F06869D9-5F9D-463A-8710-4D1AC512DAE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F06869D9-5F9D-463A-8710-4D1AC512DAE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCD776A1-721B-4B48-881C-D11DE7877EC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCD776A1-721B-4B48-881C-D11DE7877EC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCD776A1-721B-4B48-881C-D11DE7877EC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCD776A1-721B-4B48-881C-D11DE7877EC4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
