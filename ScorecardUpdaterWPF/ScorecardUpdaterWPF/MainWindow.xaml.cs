@@ -24,11 +24,11 @@ namespace ScorecardUpdaterWPF
             {
                 string json = File.ReadAllText("appsettings.json");
                 appSettings = JsonSerializer.Deserialize<Settings>(json)!;
-                Log("Loaded appsettings.json");
+                Log("📄 Loaded appsettings.json");
             }
             catch (Exception ex)
             {
-                Log($"Failed to load settings: {ex.Message}");
+                Log($"❌ Failed to load settings: {ex.Message}");
             }
         }
 
@@ -40,58 +40,125 @@ namespace ScorecardUpdaterWPF
             string targetDir = dlg.SelectedPath;
             try
             {
-                BackupConfigs(targetDir, out var backups);
-                CloneOrPullRepo(targetDir);
-                RestoreConfigs(targetDir, backups);
-                Log("Update complete.");
+                var backups = BackupProtectedFiles(targetDir);
+                string tempRepoDir = Path.Combine(Path.GetTempPath(), $"repo_{Guid.NewGuid()}");
+                Directory.CreateDirectory(tempRepoDir);
+                Log("📥 Cloning deploy branch to temp folder...");
+                RunGit($"clone --branch {appSettings.RepoBranch} {appSettings.GitHubRepoUrl} \"{tempRepoDir}\"");
+
+                string gitFolder = Path.Combine(tempRepoDir, ".git");
+                if (Directory.Exists(gitFolder))
+                {
+                    try
+                    {
+                        Directory.Delete(gitFolder, true);
+                        Log("🧽 Removed .git folder from cloned repo");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log($"⚠️ Failed to remove .git folder: {ex.Message}");
+                    }
+                }
+
+                CopyCleanFromTemp(tempRepoDir, targetDir);
+                RestoreProtectedFiles(targetDir, backups);
+                Directory.Delete(tempRepoDir, true);
+                Log("✅ Update complete.");
             }
             catch (Exception ex)
             {
-                Log($"Error: {ex.Message}");
+                Log($"❌ Error: {ex.Message}");
             }
         }
 
-        // Step 1: back up any existing protected files
-        private void BackupConfigs(string targetDir, out Dictionary<string, string> backups)
+        private void CopyCleanFromTemp(string sourceDir, string targetDir)
         {
-            backups = new Dictionary<string, string>();
-            foreach (var pf in appSettings.ProtectedFiles)
+            var protectedSet = new HashSet<string>(
+                appSettings.ProtectedFiles.Select(p => p.Replace('\\', '/')),
+                StringComparer.OrdinalIgnoreCase
+            );
+
+            foreach (var srcPath in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
             {
-                string path = Path.Combine(targetDir, pf);
-                if (File.Exists(path))
+                string relPath = Path.GetRelativePath(sourceDir, srcPath).Replace('\\', '/');
+
+                if (protectedSet.Contains(relPath))
                 {
-                    string tmp = Path.GetTempFileName();
-                    File.Copy(path, tmp, true);
-                    backups[pf] = tmp;
-                    Log($"Backed up: {pf}");
+                    Log($"🔒 Skipped protected: {relPath}");
+                    continue;
+                }
+
+                string destPath = Path.Combine(targetDir, relPath);
+                string? destDir = Path.GetDirectoryName(destPath);
+                if (!Directory.Exists(destDir))
+                    Directory.CreateDirectory(destDir);
+
+                File.Copy(srcPath, destPath, true);
+                Log($"📦 Copied: {relPath}");
+            }
+        }
+
+
+        private Dictionary<string, string> BackupProtectedFiles(string root)
+        {
+            var backups = new Dictionary<string, string>();
+            foreach (var file in appSettings.ProtectedFiles)
+            {
+                var fullPath = Path.Combine(root, file);
+                if (File.Exists(fullPath))
+                {
+                    var tempFile = Path.GetTempFileName();
+                    File.Copy(fullPath, tempFile, true);
+                    backups[file] = tempFile;
+                    Log($"🔐 Backed up: {file}");
                 }
             }
+            return backups;
         }
 
-        // Step 2: run Git clone or pull
-        private void CloneOrPullRepo(string targetDir)
+        private void RestoreProtectedFiles(string root, Dictionary<string, string> backups)
         {
-            if (Directory.Exists(Path.Combine(targetDir, ".git")))
+            foreach (var kvp in backups)
             {
-                Log("Pulling latest changes…");
-                RunGit($"-C \"{targetDir}\" pull origin {appSettings.RepoBranch}");
-            }
-            else
-            {
-                Log("Cloning deploy branch…");
-                RunGit($"clone --branch {appSettings.RepoBranch} {appSettings.GitHubRepoUrl} \"{targetDir}\"");
+                string targetPath = Path.Combine(root, kvp.Key);
+                string targetDir = Path.GetDirectoryName(targetPath)!;
+                if (!Directory.Exists(targetDir))
+                    Directory.CreateDirectory(targetDir);
+
+                File.Copy(kvp.Value, targetPath, true);
+                File.Delete(kvp.Value);
+                Log($"♻️ Restored: {kvp.Key}");
             }
         }
 
-        // Step 3: restore the backups over whatever Git wrote
-        private void RestoreConfigs(string targetDir, Dictionary<string, string> backups)
+        private void ClearDirectory(string path)
         {
-            foreach (var kv in backups)
+            Log("🧹 Clearing install folder...");
+            foreach (var dir in Directory.GetDirectories(path))
             {
-                string dest = Path.Combine(targetDir, kv.Key);
-                File.Copy(kv.Value, dest, true);
-                File.Delete(kv.Value);
-                Log($"Restored: {kv.Key}");
+                try { Directory.Delete(dir, true); }
+                catch (Exception ex) { Log($"⚠️ Failed to delete folder: {dir} – {ex.Message}"); }
+            }
+
+            foreach (var file in Directory.GetFiles(path))
+            {
+                try { File.Delete(file); }
+                catch (Exception ex) { Log($"⚠️ Failed to delete file: {file} – {ex.Message}"); }
+            }
+        }
+
+        private void CopyAllFiles(string sourceDir, string targetDir)
+        {
+            foreach (var srcPath in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+            {
+                string relPath = Path.GetRelativePath(sourceDir, srcPath);
+                string destPath = Path.Combine(targetDir, relPath);
+                string? destFolder = Path.GetDirectoryName(destPath);
+                if (!Directory.Exists(destFolder))
+                    Directory.CreateDirectory(destFolder);
+
+                File.Copy(srcPath, destPath, true);
+                Log($"📦 Copied: {relPath}");
             }
         }
 
@@ -104,17 +171,18 @@ namespace ScorecardUpdaterWPF
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
+
             using var p = Process.Start(psi)!;
             string stdout = p.StandardOutput.ReadToEnd();
             string stderr = p.StandardError.ReadToEnd();
             p.WaitForExit();
 
-            Log(stdout.Trim());
+            if (!string.IsNullOrWhiteSpace(stdout))
+                Log(stdout.Trim());
 
             if (p.ExitCode != 0)
-                Log($"Git error: {stderr.Trim()}");
+                throw new Exception($"Git error: {stderr.Trim()}");
         }
-
 
         private void Log(string msg)
         {
