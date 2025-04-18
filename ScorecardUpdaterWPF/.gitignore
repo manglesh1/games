@@ -1,0 +1,43 @@
+# === Build directories ===
+bin/
+obj/
+publish/
+*.user
+*.suo
+
+# === VS & OS garbage ===
+.vscode/
+.vs/
+*.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log
+
+# === NuGet ===
+*.nupkg
+packages/
+*.snupkg
+
+# === Rider/JetBrains ===
+.idea/
+*.sln.iml
+
+# === appsettings (local only) ===
+appsettings.json
+
+# === Crash dumps / local junk ===
+*.bak
+*.tmp
+
+# === dotnet publish output ===
+*.pdb
+*.deps.json
+*.runtimeconfig.json
+
+# === Single EXE builds (optional) ===
+*.exe
+*.dll
+
+# === GitHub Actions secrets (if you use them) ===
+.env
