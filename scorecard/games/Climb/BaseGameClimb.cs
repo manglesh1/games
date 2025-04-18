@@ -18,11 +18,13 @@ namespace scorecard
         public BaseGameClimb(GameConfig config) : base(config)
         {
             if (climbHandler == null)
-                climbHandler = new UdpHandlerWeTop(config.IpAddress, config.LocalPort, config.RemotePort, config.SocketBReceiverPort, config.NoofLedPerdevice, config.columns, "handler-1");
-            if (udpHandlers == null)
+                climbHandler = new UdpHandlerWeTop(ipAddress: config.IpAddress, destPort: config.LocalPort, 
+                    srcPort: config.RemotePort, receiverPort: config.SocketBReceiverPort, 
+                    noofledPerdevice: config.NoofLedPerdevice, columns: config.columns, namep: "handler-1");
+            if (udpHandlers.Count == 0)
             {
-                udpHandlers.Add(new UdpHandler("169.254.255.7", 22, 7113, 10105, 1, 18, "floor-1"));
-                udpHandlers.Add(new UdpHandler("169.254.255.7", 23, 7114, 10106, 1, 9, "floor-2"));
+                udpHandlers.Add(new UdpHandler("169.254.255.7", 21, 17113, 30105, 1, 18, "floor-1"));
+                udpHandlers.Add(new UdpHandler("169.254.255.7", 22, 17114, 30106, 1, 9, "floor-2"));
             }
             deviceMapping = new Dictionary<int, Mapping>();
             int k = 0;
@@ -137,6 +139,11 @@ namespace scorecard
         {
             Status = GameStatus.Running;
             climbHandler.StartReceive();
+            foreach(var handler in udpHandlers)
+            {
+                handler.StartReceive();
+            }
+
             remainingTime = IterationTime; // Initialize remaining time
             OnIteration();
             isGameRunning = true;
@@ -148,7 +155,12 @@ namespace scorecard
         override protected void IterationLost(object state)
         {
             isGameRunning = false;
-            climbHandler.StartReceive();
+            climbHandler.StopReceive();
+            foreach (var handler in udpHandlers)
+            {
+                handler.StopReceive();
+            }
+
             if (!config.timerPointLoss && state == null)
             {
                 IterationWon();

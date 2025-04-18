@@ -222,6 +222,7 @@ public class Climb : BaseGameClimb
 
     }
 
+    // For walls
     private void ReceiveCallback(byte[] receivedBytes)
 
     {
@@ -283,6 +284,8 @@ public class Climb : BaseGameClimb
 
     }
 
+
+    // For floor
     private void ReceiveCallback(byte[] receivedBytes, UdpHandler handler)
     {
         if (!isGameRunning)
@@ -298,7 +301,7 @@ public class Climb : BaseGameClimb
 
         try
         {
-            if (positions.Count > 0)
+            if (positions.Count > 0 && !coolDown.Flag)
             {
                 foreach (var position in positions)
                 {

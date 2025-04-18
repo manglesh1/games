@@ -45,9 +45,9 @@ namespace scorecard.lib
         }
         public virtual List<string> ReceiveMessage(int noofledPerdevice)
         {
-            byte[] t = udpClientReceiver.Receive(ref RemoteEndPoint);
             try
             {
+                byte[] t = udpClientReceiver.Receive(ref RemoteEndPoint);
                 int o;
                 int noofdevices = Math.DivRem((t.Length - 2), noofledPerdevice, out o);
 
