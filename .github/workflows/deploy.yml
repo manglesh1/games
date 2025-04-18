@@ -1,38 +1,64 @@
-name: Build and Deploy Scorecard
+name: Build and Deploy Scorecard & GameRoomScoreboard
 
 on:
   push:
-    branches: [main]  # Trigger on every push to main
+    branches:
+      - main
+      - workflow
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up MSBuild
-      uses: microsoft/setup-msbuild@v1.1
+      - name: Set up NuGet
+        uses: NuGet/setup-nuget@v1
 
-    - name: Build Scorecard project
-      run: msbuild scorecard.sln /p:Configuration=Debug
-      working-directory: games
+      - name: Restore NuGet packages
+        run: nuget restore scorecard.sln
 
-    - name: Copy full build output and version.txt
-      run: |
-        mkdir deploy
-        xcopy games\scorecard\bin\Debug deploy\ /E /I /Y
-        if exist games\scorecard\version.txt copy games\scorecard\version.txt deploy\
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v1.1
 
-    - name: Push deploy folder to deploy branch
-      run: |
-        cd deploy
-        git init
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
-        git add .
-        git commit -m "Deploy latest build"
-        git branch -M deploy
-        git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-        git push --force origin deploy
+      - name: Build Scorecard
+        run: msbuild scorecard\scorecard.csproj /p:Configuration=Debug
+
+      - name: Build GameRoomScoreboard
+        run: msbuild GameRoomScoreboard\GameRoomScoreboard.csproj /p:Configuration=Debug
+
+      - name: Copy Scorecard build output to GameEngine
+        shell: cmd
+        run: |
+          mkdir deploy\GameEngine
+          xcopy scorecard\bin\Debug\* deploy\GameEngine\ /E /I /Y
+          if exist scorecard\version.txt copy scorecard\version.txt deploy\GameEngine\
+
+      - name: Copy GameRoomScoreboard selected files to GameSelection
+        shell: cmd
+        run: |
+          mkdir deploy\GameSelection
+          copy GameRoomScoreboard\bin\Debug\net8.0-windows\GameRoomScoreboard.deps.json deploy\GameSelection\
+          copy GameRoomScoreboard\bin\Debug\net8.0-windows\GameRoomScoreboard.dll.config deploy\GameSelection\
+          copy GameRoomScoreboard\bin\Debug\net8.0-windows\GameRoomScoreboard.pdb deploy\GameSelection\
+          copy GameRoomScoreboard\bin\Debug\net8.0-windows\GameRoomScoreboard.runtimeconfig.json deploy\GameSelection\
+          copy GameRoomScoreboard\bin\Debug\net8.0-windows\LibNew.pdb deploy\GameSelection\
+          copy GameRoomScoreboard\bin\Debug\net8.0-windows\log4net.xml deploy\GameSelection\
+          copy GameRoomScoreboard\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.Core.xml deploy\GameSelection\
+          copy GameRoomScoreboard\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.WinForms.xml deploy\GameSelection\
+          copy GameRoomScoreboard\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.Wpf.xml deploy\GameSelection\
+
+      - name: Push deploy folder to deploy branch
+        shell: cmd
+        run: |
+          cd deploy
+          git init
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Deploy latest build"
+          git branch -M deploy
+          git remote add origin https://${{ secrets.DEPLOY_PAT }}@github.com/${{ github.repository }}.git
+          git push --force origin deploy
