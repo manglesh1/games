@@ -40,15 +40,8 @@ jobs:
         shell: cmd
         run: |
           mkdir deploy\GameSelection
-          copy GameRoomScoreboard\bin\Debug\net8.0-windows\GameRoomScoreboard.deps.json deploy\GameSelection\
-          copy GameRoomScoreboard\bin\Debug\net8.0-windows\GameRoomScoreboard.dll.config deploy\GameSelection\
-          copy GameRoomScoreboard\bin\Debug\net8.0-windows\GameRoomScoreboard.pdb deploy\GameSelection\
-          copy GameRoomScoreboard\bin\Debug\net8.0-windows\GameRoomScoreboard.runtimeconfig.json deploy\GameSelection\
-          copy GameRoomScoreboard\bin\Debug\net8.0-windows\LibNew.pdb deploy\GameSelection\
-          copy GameRoomScoreboard\bin\Debug\net8.0-windows\log4net.xml deploy\GameSelection\
-          copy GameRoomScoreboard\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.Core.xml deploy\GameSelection\
-          copy GameRoomScoreboard\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.WinForms.xml deploy\GameSelection\
-          copy GameRoomScoreboard\bin\Debug\net8.0-windows\Microsoft.Web.WebView2.Wpf.xml deploy\GameSelection\
+          xcopy GameRoomScoreboard\bin\Debug\net8.0-windows\* deploy\GameSelection\ /E /I /Y
+          if exist GameRoomScoreboard\version.txt copy GameRoomScoreboard\version.txt deploy\GameSelection\
 
       - name: Push deploy folder to deploy branch
         shell: cmd
